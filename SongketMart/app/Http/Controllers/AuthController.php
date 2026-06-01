@@ -2,78 +2,85 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
+use App\Services\AuthService; // Import Service yang baru dibuat
 
 class AuthController extends Controller
 {
-    // tempat untuk menampung logika autentikasi (register, login, logout)
+    protected $authService;
+
+    // Inject AuthService ke dalam Controller
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
     // ==================== REGISTER ====================
-    // Tampilkan form register
     public function registerForm()
     {
         return view('auth.register', ['title' => 'Daftar Akun']);
     }
-    // Proses simpan user baru
+
     public function register(Request $request)
     {
-        // Validasi input
-        $request->validate([
-            'name' => 'required|string|max:100',
-            'email' => 'required|email|unique:users,email',
-            'password' => 'required|string|min:6|confirmed',
+        // 1. Controller HANYA bertugas memvalidasi input
+        $validatedData = $request->validate([
+            'name'      => 'required|string|max:100',
+            'email'     => 'required|email|unique:users,email',
+            'password'  => 'required|string|min:8|confirmed',
+            'role'      => 'required|in:pembeli,penjual',
+            'shop_name' => 'required_if:role,penjual|nullable|string|max:255|unique:users,shop_name',
+        ], [
+            'shop_name.required_if' => 'Penjual wajib mencantumkan nama toko.',
+            'shop_name.unique'      => 'Nama toko sudah digunakan, cari nama lain yang lebih unik.'
         ]);
-        // Simpan user baru ke database
-        User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'password' => Hash::make($request->password), // enkripsi password
-        ]);
-        // Redirect ke halaman login dengan pesan sukses
-        return redirect('/login')->with('success', 'Akun berhasil dibuat. Silakan login.');
+
+        // 2. Lempar data yang sudah valid ke Service untuk diproses (dapur)
+        $this->authService->registerUser($validatedData);
+
+        // 3. Kembalikan response
+        return redirect('/login')->with('success', 'Registrasi berhasil! Silakan masuk ke akun Anda.');
     }
 
     // ==================== LOGIN ====================
-    // Tampilkan form login
     public function loginForm()
     {
         return view('auth.login', ['title' => 'Login']);
     }
-    // Proses autentikasi pengguna
+
     public function login(Request $request)
     {
-        // Validasi input
-        $request->validate([
-            'email' => 'required|email',
+        // 1. Validasi input kredensial
+        $credentials = $request->validate([
+            'email'    => 'required|email',
             'password' => 'required|string',
         ]);
 
-        // Ambil kredensial dari request
-        $credentials = $request->only('email', 'password');
-        // Coba login dengan Auth::attempt()
-        // Parameter kedua true = aktifkan fitur "Remember Me"
+        // 2. Proses Login
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
-            // Regenerasi session untuk mencegah Session Fixation Attack
             $request->session()->regenerate();
-            // Redirect ke halaman yang dituju atau /dashboard
-            return redirect()->intended('/dashboard');
+
+            // 3. Minta Service untuk menentukan arah redirect berdasarkan role
+            $redirectPath = $this->authService->getRedirectPath(Auth::user());
+
+            return redirect()->intended($redirectPath);
         }
-        // Jika gagal, kembali ke form login dengan pesan error
+
+        // Jika gagal
         return back()
             ->withInput($request->only('email'))
             ->withErrors(['email' => 'Email atau password salah.']);
     }
 
     // ==================== LOGOUT ====================
-    // Proses logout
     public function logout(Request $request)
     {
-        Auth::logout(); // hapus sesi login
-        // Invalidasi & regenerasi token session
+        Auth::logout();
+
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('/login');
     }
 }

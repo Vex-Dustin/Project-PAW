@@ -11,11 +11,16 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
-        // Konfigurasi redirect saat belum login
-        // (opsional, default sudah mengarah ke route 'login')
-        $middleware->redirectGuestsTo('/login');
-        // Konfigurasi redirect saat sudah login dan mencoba akses halaman guest
-        $middleware->redirectUsersTo('/dashboard');
+        // // Konfigurasi redirect saat belum login
+        // // (opsional, default sudah mengarah ke route 'login')
+        // $middleware->redirectGuestsTo('/login');
+        // // Konfigurasi redirect saat sudah login dan mencoba akses halaman guest
+        // $middleware->redirectUsersTo('/dashboard');
+
+        // Daftarkan alias middleware role kita di sini
+        $middleware->alias([
+            'role' => \App\Http\Middleware\CheckRole::class,
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

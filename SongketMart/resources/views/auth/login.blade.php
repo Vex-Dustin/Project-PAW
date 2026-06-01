@@ -1,69 +1,50 @@
-<!DOCTYPE html>
-<html lang="id">
+@extends('app.master')
 
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title }} - Aplikasi Penjualan</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.2/dist/css/bootstrap.min.css" rel="stylesheet">
-</head>
+@section('title', 'Masuk')
 
-<body class="bg-light">
-    <div class="container">
-        <div class="row justify-content-center mt-5">
-            <div class="col-md-5">
-                <div class="card shadow">
-                    <div class="card-header bg-primary text-white text-center">
-                        <h4 class="mb-0">{{ $title }}</h4>
+@section('content')
+    <div class="row justify-content-center align-items-center" style="min-height: 80vh;">
+        <div class="col-md-5">
+            <div class="card border-0 shadow-sm" style="border-radius: 20px;">
+                <div class="card-body p-5">
+                    <div class="text-center mb-4">
+                        <h3 class="fw-bold" style="color: var(--primary-maroon);">Selamat Datang</h3>
+                        <p class="text-muted">Masuk untuk melanjutkan belanja</p>
                     </div>
-                    <div class="card-body p-4">
-                        {{-- Tampilkan pesan sukses (setelah register) --}}
-                        @if (session('success'))
-                        <div class="alert alert-success">{{ session('success') }}</div>
-                        @endif
-                        {{-- Tampilkan error validasi --}}
-                        @if ($errors->any())
-                        <div class="alert alert-danger">
-                            @foreach ($errors->all() as $error)
-                            <div>{{ $error }}</div>
-                            @endforeach
+
+                    @if ($errors->any())
+                        <div class="alert alert-danger border-0 shadow-sm mb-4" style="border-radius: 12px;">
+                            <ul class="mb-0 small">
+                                @foreach ($errors->all() as $error)
+                                    <li>{{ $error }}</li>
+                                @endforeach
+                            </ul>
                         </div>
-                        @endif
-                        <form action="{{ url('/login') }}" method="POST">
-                            @csrf
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email</label>
-                                <input type="email" class="form-control @error('email') is-invalid @enderror"
-                                    id="email" name="email" value="{{ old('email') }}"
-                                    placeholder="nama@email.com" required autofocus>
-                                @error('email')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="mb-3">
-                                <label for="password" class="form-label">Password</label>
-                                <input type="password" class="form-control @error('password') is-invalid @enderror"
-                                    id="password" name="password" placeholder="Masukkan password" required>
-                                @error('password')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                            <div class="mb-3 form-check">
-                                <input type="checkbox" class="form-check-input" id="remember" name="remember">
-                                <label class="form-check-label" for="remember">Ingat Saya</label>
-                            </div>
-                            <div class="d-grid">
-                                <button type="submit" class="btn btn-primary">Login</button>
-                            </div>
-                        </form>
-                    </div>
-                    <div class="card-footer text-center text-muted">
-                        Belum punya akun? <a href="{{ url('/register') }}">Daftar di sini</a>
+                    @endif
+
+                    <form action="{{ route('login') }}" method="POST">
+                        @csrf
+                        <div class="mb-3">
+                            <label class="form-label small fw-bold">Alamat Email</label>
+                            <input type="email" name="email" class="form-control bg-light border-0 p-3"
+                                placeholder="nama@email.com" required style="border-radius: 12px;">
+                        </div>
+                        <div class="mb-4">
+                            <label class="form-label small fw-bold">Kata Sandi</label>
+                            <input type="password" name="password" class="form-control bg-light border-0 p-3"
+                                placeholder="••••••••" required style="border-radius: 12px;">
+                        </div>
+                        <button type="submit" class="btn btn-maroon w-100 p-3 fw-bold mb-3 shadow-sm">Masuk
+                            Sekarang</button>
+                    </form>
+
+                    <div class="text-center">
+                        <p class="small text-muted">Belum punya akun? <a href="{{ route('register') }}"
+                                class="text-decoration-none fw-bold" style="color: var(--primary-maroon);">Daftar Gratis</a>
+                        </p>
                     </div>
                 </div>
             </div>
         </div>
     </div>
-</body>
-
-</html>
+@endsection
