@@ -1,0 +1,183 @@
+@extends('app.seller_layout')
+
+@section('title', 'Rincian Pesanan #ORD-' . $order->id)
+
+@section('seller_content')
+    <div class="container-fluid">
+        {{-- Header --}}
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <div>
+                <h3 class="fw-bold mb-1" style="color: var(--primary-maroon);">
+                    <i class="bi bi-receipt-cutoff me-2"></i>Rincian Pesanan
+                </h3>
+                <p class="text-muted small mb-0">ID Pesanan: <span class="fw-bold">#ORD-{{ $order->id }}</span> | Tanggal:
+                    {{ $order->created_at->format('d M Y, H:i') }}</p>
+            </div>
+            <a href="{{ route('seller.orders.index') }}" class="btn btn-outline-secondary rounded-pill px-3">
+                <i class="bi bi-arrow-left me-1"></i> Kembali ke Daftar
+            </a>
+        </div>
+
+        @if (session('success'))
+            <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4">{{ session('success') }}</div>
+        @endif
+
+        <div class="row g-4">
+            {{-- Sisi Kiri: Daftar Produk & Ringkasan Pembayaran --}}
+            <div class="col-lg-8">
+                <div class="card border-0 shadow-sm rounded-4 mb-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-4">Daftar Produk</h5>
+                        <div class="table-responsive">
+                            <table class="table align-middle">
+                                <thead class="table-light">
+                                    <tr>
+                                        <th style="min-width: 250px;">Produk</th>
+                                        <th class="text-center">Jumlah</th>
+                                        <th class="text-end" style="min-width: 120px;">Harga Satuan</th>
+                                        <th class="text-end" style="min-width: 140px;">Subtotal</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @php $sellerTotal = 0; @endphp
+                                    @foreach ($order->items as $item)
+                                        @if ($item->product->user_id == auth()->id())
+                                            @php $sellerTotal += ($item->price * $item->quantity); @endphp
+                                            <tr>
+                                                <td>
+                                                    <div class="d-flex align-items-center">
+                                                        <img src="{{ asset('storage/' . $item->product->image) }}"
+                                                            class="rounded-3 me-3 border"
+                                                            style="width: 60px; height: 60px; object-fit: cover;">
+                                                        <div>
+                                                            <span class="fw-bold d-block text-truncate"
+                                                                style="max-width: 200px;">{{ $item->product->name }}</span>
+                                                            <small class="text-muted">Kategori:
+                                                                {{ $item->product->category->name ?? 'Songket' }}</small>
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td class="text-center">{{ $item->quantity }}</td>
+                                                <td class="text-end text-nowrap">Rp
+                                                    {{ number_format($item->price, 0, ',', '.') }}</td>
+                                                <td class="text-end fw-bold text-maroon text-nowrap">
+                                                    Rp {{ number_format($item->price * $item->quantity, 0, ',', '.') }}
+                                                </td>
+                                            </tr>
+                                        @endif
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
+
+                        {{-- Perbaikan: Menggunakan $sellerTotal agar nominal pendapatan sesuai hak milik seller --}}
+                        <div class="mt-4 p-3 bg-light rounded-4">
+                            <div class="d-flex justify-content-between mb-2">
+                                <span class="text-muted">Total Harga Produk Anda:</span>
+                                <span class="fw-bold">Rp {{ number_format($sellerTotal, 0, ',', '.') }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between border-top pt-2 mt-2">
+                                <span class="fw-bold">Total Pendapatan Anda:</span>
+                                <h4 class="fw-bold mb-0 text-maroon text-nowrap">Rp
+                                    {{ number_format($sellerTotal, 0, ',', '.') }}</h4>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {{-- Sisi Kanan: Info Pembeli & Form Status --}}
+            <div class="col-lg-4">
+                {{-- Status & Update Card --}}
+                <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
+                    <div
+                        class="p-3 text-center @if ($order->status == 'Sudah Dibayar') bg-warning @elseif($order->status == 'Diproses') bg-primary @elseif($order->status == 'Dikirim') bg-info @elseif($order->status == 'Selesai') bg-success @else bg-secondary @endif">
+                        <span class="fw-bold text-white text-uppercase">Status Saat Ini: {{ $order->status }}</span>
+                    </div>
+                    <div class="card-body p-4">
+                        <form action="{{ route('seller.orders.update-status', $order->id) }}" method="POST">
+                            @csrf
+                            <div class="mb-3">
+                                <label class="form-label small fw-bold">Ubah Status Menjadi:</label>
+                                <select name="status" id="statusSelect" class="form-select rounded-3 shadow-sm" required>
+                                    <option value="Diproses" {{ $order->status == 'Diproses' ? 'selected' : '' }}>Diproses
+                                        (Sedang disiapkan)</option>
+                                    <option value="Dikirim" {{ $order->status == 'Dikirim' ? 'selected' : '' }}>Dikirim
+                                        (Diserahkan ke kurir)</option>
+                                    <option value="Selesai" {{ $order->status == 'Selesai' ? 'selected' : '' }}>Selesai
+                                        (Diterima Pembeli)</option>
+                                </select>
+                            </div>
+
+                            {{-- Input Resi yang muncul dinamis jika status 'Dikirim' --}}
+                            <div id="resiInputGroup" class="{{ $order->status == 'Dikirim' ? '' : 'd-none' }} mb-3">
+                                <label class="form-label small fw-bold">Nomor Resi Kurir:</label>
+                                <input type="text" name="resi_number" id="resi_input"
+                                    class="form-control rounded-3 shadow-sm" placeholder="Masukkan nomor resi..."
+                                    value="{{ $order->resi_number }}">
+                                <small class="text-muted d-block mt-1">Gunakan nomor resi pengiriman yang valid agar pembeli
+                                    dapat melacak paket.</small>
+                            </div>
+
+                            <button type="submit" class="btn w-100 rounded-pill py-2 fw-bold text-white shadow-sm mt-2"
+                                style="background-color: var(--primary-maroon);">
+                                <i class="bi bi-save me-1"></i> Simpan Perubahan
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                {{-- Customer Card --}}
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <h6 class="fw-bold border-bottom pb-2 mb-3">Informasi Pelanggan</h6>
+                        <div class="mb-3">
+                            <label class="small text-muted d-block">Nama Lengkap:</label>
+                            <span class="fw-bold">{{ $order->user->name }}</span>
+                        </div>
+                        <div class="mb-3">
+                            <label class="small text-muted d-block">Kontak Email:</label>
+                            <span class="text-dark">{{ $order->user->email }}</span>
+                        </div>
+                        <hr>
+                        <h6 class="fw-bold border-bottom pb-2 mb-3">Alamat Pengiriman</h6>
+                        <p class="text-muted text-dark fw-semibold small mb-0">
+                            {{ $order->shipping_address ?? 'Alamat tidak tercatat' }}
+                        </p>
+                        <hr>
+                        <div class="bg-light p-3 rounded-3">
+                            <label class="small text-muted d-block mb-1 italic"><i class="bi bi-chat-left-text me-1"></i>
+                                Catatan Pembeli:</label>
+                            <span class="small">{{ $order->notes ?? '-' }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    {{-- JavaScript Dinamis untuk Resi Pengiriman --}}
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const statusSelect = document.getElementById('statusSelect');
+            const resiGroup = document.getElementById('resiInputGroup');
+            const resiInput = document.getElementById('resi_input');
+
+            function toggleResiInput() {
+                if (statusSelect.value === 'Dikirim') {
+                    resiGroup.classList.remove('d-none');
+                    resiInput.setAttribute('required', 'required');
+                } else {
+                    resiGroup.classList.add('d-none');
+                    resiInput.removeAttribute('required');
+                }
+            }
+
+            // Jalankan saat pertama kali halaman dimuat (jika status bawaannya sudah 'Dikirim')
+            toggleResiInput();
+
+            // Jalankan setiap kali opsi dropdown berubah
+            statusSelect.addEventListener('change', toggleResiInput);
+        });
+    </script>
+@endsection
