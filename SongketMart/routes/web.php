@@ -91,8 +91,10 @@ Route::middleware('auth')->group(function () {
         });
 
         Route::resource('categories', CategoriesController::class);
-
-        // Update Status Laporan (Hanya Admin)
-        Route::patch('/reports/{report}/status', [ReportController::class, 'updateStatus'])->name('reports.updateStatus');
     });
+
+    // Update Status Laporan (Hanya Admin, dikeluarkan dari grup name('admin.') agar namanya pas 'reports.updateStatus')
+    Route::patch('/admin/reports/{report}/status', [ReportController::class, 'updateStatus'])
+        ->middleware('role:admin')
+        ->name('reports.updateStatus');
 });
