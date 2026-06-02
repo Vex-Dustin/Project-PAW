@@ -8,8 +8,9 @@ use Exception;
 
 class CartService
 {
-    // Logika menambahkan barang ke keranjang
-
+    /**
+     * Logika menambahkan barang ke keranjang
+     */
     public function addToCart($userId, $productId, $quantity)
     {
         // Pastikan produk valid
@@ -46,9 +47,9 @@ class CartService
         return true;
     }
 
-    
-    // Logika mengupdate jumlah barang di keranjang
-     
+    /**
+     * Logika mengupdate jumlah barang di keranjang
+     */
     public function updateQuantity($userId, $cartId, $quantity)
     {
         $cart = Cart::where('user_id', $userId)->findOrFail($cartId);
@@ -64,8 +65,9 @@ class CartService
         return $cart;
     }
 
-    // Logika menghapus barang dari keranjang
-     
+    /**
+     * Logika menghapus barang dari keranjang
+     */
     public function removeFromCart($userId, $cartId)
     {
         $cart = Cart::where('user_id', $userId)->findOrFail($cartId);

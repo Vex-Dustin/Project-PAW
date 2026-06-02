@@ -1,4 +1,4 @@
-git add .<?php
+<?php
 
 namespace App\Providers;
 
@@ -20,5 +20,6 @@ class AuthServiceProvider extends ServiceProvider
     public function boot(): void
     {
         //Tempat untuk mendaftarkan kebijakan otorisasi (authorization policies)
+        //Tidak jadi dipakai karena kita menggunakan middleware untuk mengatur akses berdasarkan role
     }
 }

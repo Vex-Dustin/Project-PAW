@@ -11,9 +11,9 @@ use Exception;
 
 class OrderService
 {
-    
-    // Logika untuk memproses Checkout
-     
+    /**
+     * Logika untuk memproses Checkout
+     */
     public function processCheckout($userId, array $data)
     {
         $carts = Cart::with('product')->where('user_id', $userId)->get();
@@ -63,9 +63,9 @@ class OrderService
         });
     }
 
-    
-    // Logika untuk Upload Bukti Pembayaran
-    
+    /**
+     * Logika untuk Upload Bukti Pembayaran
+     */
     public function uploadPaymentProof(Order $order, $file)
     {
         // Hapus foto lama jika ada (mencegah penumpukan file sampah)
@@ -83,9 +83,9 @@ class OrderService
         return $order;
     }
 
-    
-    // Logika untuk Penjual Memverifikasi Pembayaran
-    
+    /**
+     * Logika untuk Penjual Memverifikasi Pembayaran
+     */
     public function verifyPayment(Order $order)
     {
         if ($order->status !== 'Menunggu Verifikasi') {
@@ -97,9 +97,9 @@ class OrderService
         return $order;
     }
 
-    
-    // Logika untuk Penjual Memperbarui Status Pengiriman (Diproses/Dikirim)
-     
+    /**
+     * Logika untuk Penjual Memperbarui Status Pengiriman (Diproses/Dikirim)
+     */
     public function updateShippingStatus(Order $order, array $data)
     {
         if ($order->status == 'Selesai') {
@@ -115,9 +115,9 @@ class OrderService
         return $order;
     }
 
-    
-    // Logika untuk Pembeli Menyelesaikan Pesanan
-    
+    /**
+     * Logika untuk Pembeli Menyelesaikan Pesanan
+     */
     public function completeOrder(Order $order)
     {
         $order->update(['status' => 'Selesai']);

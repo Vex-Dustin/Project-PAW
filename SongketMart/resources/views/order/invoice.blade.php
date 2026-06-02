@@ -79,7 +79,8 @@
                 <a href="{{ route('order.index') }}" class="btn btn-secondary rounded-pill">
                     <i class="bi bi-arrow-left"></i> Kembali
                 </a>
-                <button onclick="window.print()" class="btn btn-danger rounded-pill" style="background-color: var(--primary-maroon);">
+                <button onclick="window.print()" class="btn btn-danger rounded-pill"
+                    style="background-color: var(--primary-maroon);">
                     <i class="bi bi-printer"></i> Cetak / Download PDF
                 </button>
             </div>
@@ -141,7 +142,8 @@
 
             <div class="mt-5 p-4 rounded-4 bg-light">
                 <h6 class="fw-bold small text-uppercase">Catatan:</h6>
-                <p class="small text-muted mb-0">Terima kasih telah melestarikan budaya bangsa dengan membeli Songket asli. Invoice ini adalah bukti pembayaran yang sah.</p>
+                <p class="small text-muted mb-0">Terima kasih telah melestarikan budaya bangsa dengan membeli Songket
+                    asli. Invoice ini adalah bukti pembayaran yang sah.</p>
             </div>
 
             <div class="text-center mt-5">

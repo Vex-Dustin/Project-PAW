@@ -23,8 +23,9 @@
         @endif
 
         <div class="row g-4">
-            {{-- Sisi Kiri: Daftar Produk & Ringkasan Pembayaran --}}
+            {{-- Sisi Kiri: Daftar Produk & Ringkasan Pembayaran + BUKTI PEMBAYARAN --}}
             <div class="col-lg-8">
+                {{-- Card Daftar Produk --}}
                 <div class="card border-0 shadow-sm rounded-4 mb-4">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-4">Daftar Produk</h5>
@@ -70,7 +71,6 @@
                             </table>
                         </div>
 
-                        {{-- Perbaikan: Menggunakan $sellerTotal agar nominal pendapatan sesuai hak milik seller --}}
                         <div class="mt-4 p-3 bg-light rounded-4">
                             <div class="d-flex justify-content-between mb-2">
                                 <span class="text-muted">Total Harga Produk Anda:</span>
@@ -82,6 +82,36 @@
                                     {{ number_format($sellerTotal, 0, ',', '.') }}</h4>
                             </div>
                         </div>
+                    </div>
+                </div>
+
+                {{-- TAMBAHAN BARU: Card Bukti Pembayaran dari Pembeli --}}
+                <div class="card border-0 shadow-sm rounded-4">
+                    <div class="card-body p-4">
+                        <h5 class="fw-bold mb-3"><i class="bi bi-image me-2 text-secondary"></i>Bukti Pembayaran</h5>
+
+                        {{-- Catatan: Sesuaikan '$order->payment_proof' dengan nama kolom asli di database Anda --}}
+                        @if (!empty($order->payment_proof))
+                            <div class="p-3 bg-light rounded-4 border text-center">
+                                <div
+                                    class="position-relative d-inline-block shadow-sm rounded-3 overflow-hidden bg-white p-2 border">
+                                    <img src="{{ asset('storage/' . $order->payment_proof) }}" alt="Bukti Pembayaran"
+                                        class="img-fluid rounded"
+                                        style="max-height: 300px; object-fit: contain; cursor: pointer;"
+                                        data-bs-toggle="modal" data-bs-target="#paymentProofModal">
+                                </div>
+                                <p class="text-muted small mb-0 mt-3">
+                                    <i class="bi bi-zoom-in me-1"></i> Klik gambar di atas untuk memperbesar rincian
+                                    transfer.
+                                </p>
+                            </div>
+                        @else
+                            <div class="text-center py-4 bg-light rounded-4 border border-dashed">
+                                <i class="bi bi-file-earmark-x text-muted mb-2" style="font-size: 2rem;"></i>
+                                <p class="text-muted small mb-0">Belum ada bukti pembayaran yang diunggah oleh pembeli atau
+                                    menggunakan metode COD.</p>
+                            </div>
+                        @endif
                     </div>
                 </div>
             </div>
@@ -156,6 +186,24 @@
         </div>
     </div>
 
+    {{-- TAMBAHAN BARU: Bootstrap Modal untuk Zoom Gambar Bukti Pembayaran --}}
+    @if (!empty($order->payment_proof))
+        <div class="modal fade" id="paymentProofModal" tabindex="-1" aria-labelledby="paymentProofModalLabel"
+            aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-md">
+                <div class="modal-content border-0 rounded-4 shadow">
+                    <div class="modal-header border-0 bg-light rounded-top-4 py-3">
+                        <h5 class="modal-title fw-bold text-dark" id="paymentProofModalLabel">Detail Bukti Pembayaran</h5>
+                    </div>
+                    <div class="modal-body p-3 text-center bg-dark rounded-bottom-4">
+                        <img src="{{ asset('storage/' . $order->payment_proof) }}" class="img-fluid rounded-2"
+                            style="max-height: 80vh; object-fit: contain;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    @endif
+
     {{-- JavaScript Dinamis untuk Resi Pengiriman --}}
     <script>
         document.addEventListener('DOMContentLoaded', function() {
@@ -173,10 +221,7 @@
                 }
             }
 
-            // Jalankan saat pertama kali halaman dimuat (jika status bawaannya sudah 'Dikirim')
             toggleResiInput();
-
-            // Jalankan setiap kali opsi dropdown berubah
             statusSelect.addEventListener('change', toggleResiInput);
         });
     </script>
