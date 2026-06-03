@@ -80,22 +80,26 @@
                             </td>
                             <td>
                                 <div class="d-flex justify-content-center gap-2">
-                                    {{-- Tombol Edit --}}
-                                    <a href="{{ route('seller.products.edit', $product->id) }}"
-                                        class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
-                                        <i class="bi bi-pencil-square me-1"></i> Edit
-                                    </a>
+                                    {{-- Cek izin update sebelum menampilkan tombol Edit --}}
+                                    @can('update', $product)
+                                        <a href="{{ route('seller.products.edit', $product->id) }}"
+                                            class="btn btn-sm btn-outline-primary rounded-pill px-3 shadow-sm">
+                                            <i class="bi bi-pencil-square me-1"></i> Edit
+                                        </a>
+                                    @endcan
 
-                                    {{-- Tombol Hapus --}}
-                                    <form action="{{ route('seller.products.destroy', $product->id) }}" method="POST"
-                                        onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk {{ $product->name }}?')">
-                                        @csrf
-                                        @method('DELETE')
-                                        <button type="submit"
-                                            class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm">
-                                            <i class="bi bi-trash me-1"></i> Hapus
-                                        </button>
-                                    </form>
+                                    {{-- Cek izin delete sebelum menampilkan form Hapus --}}
+                                    @can('delete', $product)
+                                        <form action="{{ route('seller.products.destroy', $product->id) }}" method="POST"
+                                            onsubmit="return confirm('Apakah Anda yakin ingin menghapus produk {{ $product->name }}?')">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit"
+                                                class="btn btn-sm btn-outline-danger rounded-pill px-3 shadow-sm">
+                                                <i class="bi bi-trash me-1"></i> Hapus
+                                            </button>
+                                        </form>
+                                    @endcan
                                 </div>
                             </td>
                         </tr>

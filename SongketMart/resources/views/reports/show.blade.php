@@ -50,29 +50,32 @@
                             </div>
                         </div>
 
-                        @if (auth()->user()->role == 'admin' && $report->status != 'resolved')
-                            <hr class="my-4">
-                            <div class="d-flex justify-content-end gap-2">
-                                <form action="{{ route('reports.updateStatus', $report->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="process">
-                                    <button type="submit" class="btn btn-outline-info rounded-pill px-4"
-                                        {{ $report->status == 'process' ? 'disabled' : '' }}>
-                                        Tandai Sedang Diproses
-                                    </button>
-                                </form>
+                        {{-- Menggunakan Policy updateStatus --}}
+                        @can('updateStatus', $report)
+                            @if ($report->status != 'resolved')
+                                <hr class="my-4">
+                                <div class="d-flex justify-content-end gap-2">
+                                    <form action="{{ route('reports.updateStatus', $report->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="process">
+                                        <button type="submit" class="btn btn-outline-info rounded-pill px-4"
+                                            {{ $report->status == 'process' ? 'disabled' : '' }}>
+                                            Tandai Sedang Diproses
+                                        </button>
+                                    </form>
 
-                                <form action="{{ route('reports.updateStatus', $report->id) }}" method="POST">
-                                    @csrf
-                                    @method('PATCH')
-                                    <input type="hidden" name="status" value="resolved">
-                                    <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm">
-                                        Selesaikan Masalah
-                                    </button>
-                                </form>
-                            </div>
-                        @endif
+                                    <form action="{{ route('reports.updateStatus', $report->id) }}" method="POST">
+                                        @csrf
+                                        @method('PATCH')
+                                        <input type="hidden" name="status" value="resolved">
+                                        <button type="submit" class="btn btn-success rounded-pill px-4 shadow-sm">
+                                            Selesaikan Masalah
+                                        </button>
+                                    </form>
+                                </div>
+                            @endif
+                        @endcan
                     </div>
                 </div>
             </div>

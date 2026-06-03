@@ -6,6 +6,7 @@ use App\Models\Cart;
 use App\Services\CartService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate; // <-- Tambahkan Gate
 
 class CartController extends Controller
 {
@@ -45,6 +46,10 @@ class CartController extends Controller
             'quantity' => 'required|integer|min:1'
         ]);
 
+        // KODE BARU: Cari data cart dan validasi kepemilikan via Policy
+        $cart = Cart::findOrFail($id);
+        Gate::authorize('update', $cart);
+
         try {
             $this->cartService->updateQuantity(Auth::id(), $id, $request->quantity);
             return redirect()->route('cart.index')->with('success', 'Jumlah barang berhasil diperbarui!');
@@ -56,6 +61,10 @@ class CartController extends Controller
     // Menghapus barang dari keranjang
     public function destroy($id)
     {
+        // KODE BARU: Cari data cart dan validasi kepemilikan via Policy
+        $cart = Cart::findOrFail($id);
+        Gate::authorize('delete', $cart);
+
         try {
             $this->cartService->removeFromCart(Auth::id(), $id);
             return redirect()->back()->with('success', 'Produk dihapus dari keranjang.');

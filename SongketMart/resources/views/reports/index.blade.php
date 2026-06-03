@@ -80,19 +80,22 @@
                                                 @endif
                                             </td>
                                             <td class="text-end pe-4">
-                                                {{-- Jika Admin, bisa update status --}}
-                                                @if (auth()->user()->role == 'admin' && $report->status != 'resolved')
-                                                    <form action="{{ route('reports.updateStatus', $report->id) }}"
-                                                        method="POST" class="d-inline">
-                                                        @csrf
-                                                        @method('PATCH')
-                                                        <input type="hidden" name="status" value="resolved">
-                                                        <button type="submit"
-                                                            class="btn btn-sm btn-success rounded-pill px-3">
-                                                            Selesaikan
-                                                        </button>
-                                                    </form>
-                                                @endif
+                                                {{-- Menggunakan Policy updateStatus --}}
+                                                @can('updateStatus', $report)
+                                                    @if ($report->status != 'resolved')
+                                                        <form action="{{ route('reports.updateStatus', $report->id) }}"
+                                                            method="POST" class="d-inline">
+                                                            @csrf
+                                                            @method('PATCH')
+                                                            <input type="hidden" name="status" value="resolved">
+                                                            <button type="submit"
+                                                                class="btn btn-sm btn-success rounded-pill px-3">
+                                                                Selesaikan
+                                                            </button>
+                                                        </form>
+                                                    @endif
+                                                @endcan
+
                                                 <a href="{{ route('reports.show', $report->id) }}"
                                                     class="btn btn-sm btn-outline-secondary rounded-pill">
                                                     Detail

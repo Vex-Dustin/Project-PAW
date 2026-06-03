@@ -33,6 +33,14 @@ class AdminController extends Controller
         return view('admin.verifications.index', compact('pendingProducts'));
     }
 
+    public function showVerification($id)
+    {
+        // Mengambil detail produk berdasarkan ID beserta data penjual dan kategorinya
+        $product = Product::with(['user', 'category'])->findOrFail($id);
+
+        return view('admin.verifications.show', compact('product'));
+    }
+
     public function verify(Request $request, $id)
     {
         // Validasi status sesuai dengan nilai tombol yang ada di file Blade Anda
@@ -49,7 +57,7 @@ class AdminController extends Controller
             ? 'Produk berhasil disertifikasi sebagai Barang Asli.'
             : 'Produk songket telah ditolak.';
 
-        return redirect()->back()->with('success', $pesan);
+        return redirect()->route('admin.verifications.index')->with('success', $pesan);
     }
 
     // ==========================================

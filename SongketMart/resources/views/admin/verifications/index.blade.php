@@ -14,7 +14,8 @@
             <div class="col-md-9">
                 <div class="mb-4">
                     <h2 class="fw-bold">Verifikasi Produk Songket</h2>
-                    <p class="text-muted">Setujui atau tolak produk yang diunggah oleh penjual untuk menjamin keaslian.</p>
+                    <p class="text-muted">Setujui atau tolak produk yang diunggah oleh penjual untuk menjamin keaslian
+                        sebelum tampil di katalog publik.</p>
                 </div>
 
                 @if (session('success'))
@@ -59,6 +60,12 @@
                                     <td><span class="badge bg-warning text-dark">{{ $product->status }}</span></td>
                                     <td class="text-center">
                                         <div class="d-flex justify-content-center gap-2">
+                                            {{-- Tombol Detail --}}
+                                            <a href="{{ route('admin.verifications.show', $product->id) }}"
+                                                class="btn btn-sm btn-outline-primary px-3 rounded-pill">
+                                                <i class="bi bi-eye me-1"></i> Detail
+                                            </a>
+
                                             {{-- Tombol Setujui --}}
                                             <form action="{{ route('admin.verifications.verify', $product->id) }}"
                                                 method="POST">

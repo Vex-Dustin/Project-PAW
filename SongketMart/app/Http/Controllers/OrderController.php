@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
@@ -48,7 +49,12 @@ class OrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::with('items.product')->where('user_id', Auth::id())->findOrFail($id);
+        // 1. Cari Order (tanpa where user_id)
+        $order = Order::with('items.product')->findOrFail($id);
+
+        // 2. Cek Izin via Policy (Otomatis 403 jika bukan miliknya)
+        Gate::authorize('view', $order);
+
         return view('order.show', compact('order'));
     }
 
@@ -58,7 +64,10 @@ class OrderController extends Controller
             'payment_proof' => 'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
-        $order = Order::where('user_id', Auth::id())->findOrFail($id);
+        $order = Order::findOrFail($id);
+
+        // Cek Izin
+        Gate::authorize('view', $order);
 
         if ($request->hasFile('payment_proof')) {
             $this->orderService->uploadPaymentProof($order, $request->file('payment_proof'));
@@ -70,9 +79,11 @@ class OrderController extends Controller
 
     public function complete($id)
     {
-        $order = Order::where('user_id', Auth::id())
-            ->where('status', 'Dikirim')
-            ->findOrFail($id);
+        // Tetap menyertakan where('status', 'Dikirim') karena itu aturan bisnis, BUKAN aturan otorisasi role
+        $order = Order::where('status', 'Dikirim')->findOrFail($id);
+
+        // Cek Izin 
+        Gate::authorize('complete', $order);
 
         $this->orderService->completeOrder($order);
 
@@ -81,7 +92,11 @@ class OrderController extends Controller
 
     public function showInvoice($id)
     {
-        $order = Order::where('user_id', Auth::id())->findOrFail($id);
+        $order = Order::findOrFail($id);
+
+        // Cek Izin
+        Gate::authorize('view', $order);
+
         return view('order.invoice', compact('order'));
     }
 }

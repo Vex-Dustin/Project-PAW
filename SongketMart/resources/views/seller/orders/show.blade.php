@@ -134,8 +134,6 @@
                                         (Sedang disiapkan)</option>
                                     <option value="Dikirim" {{ $order->status == 'Dikirim' ? 'selected' : '' }}>Dikirim
                                         (Diserahkan ke kurir)</option>
-                                    <option value="Selesai" {{ $order->status == 'Selesai' ? 'selected' : '' }}>Selesai
-                                        (Diterima Pembeli)</option>
                                 </select>
                             </div>
 

@@ -6,6 +6,7 @@ use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Gate; // <-- Tambahkan ini
 
 class SellerOrderController extends Controller
 {
@@ -18,6 +19,7 @@ class SellerOrderController extends Controller
 
     public function index()
     {
+        // Kueri index ini dibiarkan (TIDAK DIUBAH) karena berfungsi sebagai filter tabel
         $orders = Order::whereHas('items.product', function ($query) {
             $query->where('user_id', Auth::id());
         })
@@ -30,9 +32,10 @@ class SellerOrderController extends Controller
 
     public function verifyPayment($id)
     {
-        $order = Order::whereHas('items.product', function ($query) {
-            $query->where('user_id', Auth::id());
-        })->findOrFail($id);
+        $order = Order::findOrFail($id);
+
+        // Cek izin akses sebagai penjual
+        Gate::authorize('manageAsSeller', $order);
 
         try {
             $this->orderService->verifyPayment($order);
@@ -44,9 +47,10 @@ class SellerOrderController extends Controller
 
     public function updateStatus(Request $request, $id)
     {
-        $order = Order::whereHas('items.product', function ($query) {
-            $query->where('user_id', Auth::id());
-        })->findOrFail($id);
+        $order = Order::findOrFail($id);
+
+        // Cek izin akses sebagai penjual
+        Gate::authorize('manageAsSeller', $order);
 
         $validatedData = $request->validate([
             'status' => 'required|in:Diproses,Dikirim',
@@ -63,11 +67,11 @@ class SellerOrderController extends Controller
 
     public function show($id)
     {
-        $order = Order::whereHas('items.product', function ($query) {
-            $query->where('user_id', Auth::id());
-        })
-            ->with(['user', 'items.product'])
-            ->findOrFail($id);
+        // Cari order dan muat relasinya untuk efisiensi
+        $order = Order::with(['user', 'items.product'])->findOrFail($id);
+
+        // Cek izin akses sebagai penjual
+        Gate::authorize('manageAsSeller', $order);
 
         return view('seller.orders.show', compact('order'));
     }

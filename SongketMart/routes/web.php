@@ -85,6 +85,7 @@ Route::middleware('auth')->group(function () {
         Route::controller(AdminController::class)->group(function () {
             Route::get('/verifications', 'verifications')->name('verifications.index');
             Route::patch('/verifications/{id}', 'verify')->name('verifications.verify');
+            Route::get('/verifications/{id}', 'showVerification')->name('verifications.show');
             Route::get('/users', 'users')->name('users.index');
             Route::patch('/users/{id}/role', 'updateRole')->name('users.update-role');
             Route::delete('/users/{id}', 'destroyUser')->name('users.destroy');

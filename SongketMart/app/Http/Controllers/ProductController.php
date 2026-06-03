@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
@@ -58,18 +59,23 @@ class ProductController extends Controller
 
     public function edit($id)
     {
-        $product = Product::where('user_id', Auth::id())->findOrFail($id);
-        $categories = Category::all();
+        // 1. Cari produknya dulu tanpa peduli siapa pemiliknya
+        $product = Product::findOrFail($id);
 
+        // 2. Gunakan POLICY untuk mengecek izin akses (Otomatis melempar 403 jika gagal)
+        Gate::authorize('update', $product);
+
+        $categories = Category::all();
         return view('seller.products.edit', compact('product', 'categories'));
     }
 
     public function update(Request $request, $id)
     {
-        // 1. Pastikan produk ini milik penjual yang sedang login
-        $product = Product::where('user_id', Auth::id())->findOrFail($id);
+        $product = Product::findOrFail($id);
 
-        // 2. Validasi Input
+        // Cek izin akses via Policy
+        Gate::authorize('update', $product);
+
         $request->validate([
             'name'  => 'required',
             'price' => 'required|numeric',
@@ -77,7 +83,6 @@ class ProductController extends Controller
             'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
         ]);
 
-        // 3. Oper seluruh data request (kecuali token dan method) ke Service
         $data = $request->except(['_token', '_method']);
 
         $this->productService->updateProduct(
@@ -92,10 +97,11 @@ class ProductController extends Controller
 
     public function destroy($id)
     {
-        // 1. Pastikan produk ini milik penjual yang sedang login
-        $product = Product::where('user_id', Auth::id())->findOrFail($id);
+        $product = Product::findOrFail($id);
 
-        // 2. Oper ke Service untuk dihapus beserta gambarnya
+        // Cek izin akses via Policy
+        Gate::authorize('delete', $product);
+
         $this->productService->deleteProduct($product);
 
         return redirect()->route('seller.products.index')
