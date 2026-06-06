@@ -26,8 +26,8 @@ class HomeController extends Controller
         // 3. Ambil data kategori untuk ditampilkan di View agar tidak error (Poin 5)
         $categories = Category::all();
 
-        // 4. Logika Pagination 10 Data (Poin 18)
-        $products = $query->latest()->paginate(5)->withQueryString();
+        // 4. Logika Pagination 8 Data
+        $products = $query->latest()->paginate(8)->withQueryString();
 
         // 5. Kirim data products dan categories ke View
         return view('home', compact('products', 'categories'));

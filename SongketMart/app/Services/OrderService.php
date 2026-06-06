@@ -41,6 +41,7 @@ class OrderService
                 'status'           => 'Belum Dibayar',
                 'shipping_address' => $data['shipping_address'],
                 'payment_method'   => $data['payment_method'],
+                'notes'            => $data['notes'] ?? null,
             ]);
 
             // 3. Pindahkan Keranjang ke Order Item & Kurangi Stok

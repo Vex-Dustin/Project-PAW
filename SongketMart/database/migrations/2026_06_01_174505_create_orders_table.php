@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->decimal('total_price', 15, 2);
+            $table->text('notes')->nullable();
             $table->string('status')->default('Belum Dibayar'); // Status awal pesanan
             $table->timestamps();
         });

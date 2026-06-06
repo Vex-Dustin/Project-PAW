@@ -29,6 +29,18 @@ class DatabaseSeeder extends Seeder
             'description' => 'Kain batik motif jumputan dengan warna cerah.'
         ]);
 
+        Category::create([
+            'name' => 'Baik Tenun',
+            'slug' => 'batik-tenun',
+            'description' => 'Kain tenun ikat dari Sumba dengan motif tradisional.'
+        ]);
+
+        Category::create([
+            'name' => 'Kain Ulos',
+            'slug' => 'kain-ulos',
+            'description' => 'Kain ulos tradisional dari suku Batak dengan motif khas.'
+        ]);
+
         // 2. Panggil UserSeeder (yang berisi Admin, Penjual, Pembeli)
         $this->call([
             UserSeeder::class,

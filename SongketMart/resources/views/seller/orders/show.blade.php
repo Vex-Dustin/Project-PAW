@@ -124,34 +124,47 @@
                         class="p-3 text-center @if ($order->status == 'Sudah Dibayar') bg-warning @elseif($order->status == 'Diproses') bg-primary @elseif($order->status == 'Dikirim') bg-info @elseif($order->status == 'Selesai') bg-success @else bg-secondary @endif">
                         <span class="fw-bold text-white text-uppercase">Status Saat Ini: {{ $order->status }}</span>
                     </div>
+
                     <div class="card-body p-4">
-                        <form action="{{ route('seller.orders.update-status', $order->id) }}" method="POST">
-                            @csrf
-                            <div class="mb-3">
-                                <label class="form-label small fw-bold">Ubah Status Menjadi:</label>
-                                <select name="status" id="statusSelect" class="form-select rounded-3 shadow-sm" required>
-                                    <option value="Diproses" {{ $order->status == 'Diproses' ? 'selected' : '' }}>Diproses
-                                        (Sedang disiapkan)</option>
-                                    <option value="Dikirim" {{ $order->status == 'Dikirim' ? 'selected' : '' }}>Dikirim
-                                        (Diserahkan ke kurir)</option>
-                                </select>
+                        {{-- LOGIKA BARU: Jika Selesai, form dihilangkan --}}
+                        @if ($order->status == 'Selesai')
+                            <div class="alert alert-success border-0 shadow-sm rounded-3 text-center mb-0">
+                                <i class="bi bi-check-circle-fill d-block fs-3 mb-2"></i>
+                                <span class="fw-bold d-block">Pesanan Selesai</span>
+                                <small>Status pesanan tidak dapat diubah lagi.</small>
                             </div>
+                        @else
+                            <form action="{{ route('seller.orders.update-status', $order->id) }}" method="POST">
+                                @csrf
+                                <div class="mb-3">
+                                    <label class="form-label small fw-bold">Ubah Status Menjadi:</label>
+                                    <select name="status" id="statusSelect" class="form-select rounded-3 shadow-sm"
+                                        required>
+                                        <option value="Diproses" {{ $order->status == 'Diproses' ? 'selected' : '' }}>
+                                            Diproses
+                                            (Sedang disiapkan)</option>
+                                        <option value="Dikirim" {{ $order->status == 'Dikirim' ? 'selected' : '' }}>Dikirim
+                                            (Diserahkan ke kurir)</option>
+                                    </select>
+                                </div>
 
-                            {{-- Input Resi yang muncul dinamis jika status 'Dikirim' --}}
-                            <div id="resiInputGroup" class="{{ $order->status == 'Dikirim' ? '' : 'd-none' }} mb-3">
-                                <label class="form-label small fw-bold">Nomor Resi Kurir:</label>
-                                <input type="text" name="resi_number" id="resi_input"
-                                    class="form-control rounded-3 shadow-sm" placeholder="Masukkan nomor resi..."
-                                    value="{{ $order->resi_number }}">
-                                <small class="text-muted d-block mt-1">Gunakan nomor resi pengiriman yang valid agar pembeli
-                                    dapat melacak paket.</small>
-                            </div>
+                                {{-- Input Resi yang muncul dinamis jika status 'Dikirim' --}}
+                                <div id="resiInputGroup" class="{{ $order->status == 'Dikirim' ? '' : 'd-none' }} mb-3">
+                                    <label class="form-label small fw-bold">Nomor Resi Kurir:</label>
+                                    <input type="text" name="resi_number" id="resi_input"
+                                        class="form-control rounded-3 shadow-sm" placeholder="Masukkan nomor resi..."
+                                        value="{{ $order->resi_number }}">
+                                    <small class="text-muted d-block mt-1">Gunakan nomor resi pengiriman yang valid agar
+                                        pembeli
+                                        dapat melacak paket.</small>
+                                </div>
 
-                            <button type="submit" class="btn w-100 rounded-pill py-2 fw-bold text-white shadow-sm mt-2"
-                                style="background-color: var(--primary-maroon);">
-                                <i class="bi bi-save me-1"></i> Simpan Perubahan
-                            </button>
-                        </form>
+                                <button type="submit" class="btn w-100 rounded-pill py-2 fw-bold text-white shadow-sm mt-2"
+                                    style="background-color: var(--primary-maroon);">
+                                    <i class="bi bi-save me-1"></i> Simpan Perubahan
+                                </button>
+                            </form>
+                        @endif
                     </div>
                 </div>
 
@@ -209,18 +222,21 @@
             const resiGroup = document.getElementById('resiInputGroup');
             const resiInput = document.getElementById('resi_input');
 
-            function toggleResiInput() {
-                if (statusSelect.value === 'Dikirim') {
-                    resiGroup.classList.remove('d-none');
-                    resiInput.setAttribute('required', 'required');
-                } else {
-                    resiGroup.classList.add('d-none');
-                    resiInput.removeAttribute('required');
+            // Tambahkan pengecekan if (statusSelect) agar tidak error saat form disembunyikan
+            if (statusSelect) {
+                function toggleResiInput() {
+                    if (statusSelect.value === 'Dikirim') {
+                        resiGroup.classList.remove('d-none');
+                        resiInput.setAttribute('required', 'required');
+                    } else {
+                        resiGroup.classList.add('d-none');
+                        resiInput.removeAttribute('required');
+                    }
                 }
-            }
 
-            toggleResiInput();
-            statusSelect.addEventListener('change', toggleResiInput);
+                toggleResiInput();
+                statusSelect.addEventListener('change', toggleResiInput);
+            }
         });
     </script>
 @endsection
