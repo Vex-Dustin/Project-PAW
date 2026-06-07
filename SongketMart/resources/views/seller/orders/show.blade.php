@@ -21,6 +21,9 @@
         @if (session('success'))
             <div class="alert alert-success border-0 shadow-sm rounded-3 mb-4">{{ session('success') }}</div>
         @endif
+        @if (session('error'))
+            <div class="alert alert-danger border-0 shadow-sm rounded-3 mb-4">{{ session('error') }}</div>
+        @endif
 
         <div class="row g-4">
             {{-- Sisi Kiri: Daftar Produk & Ringkasan Pembayaran + BUKTI PEMBAYARAN --}}
@@ -85,12 +88,11 @@
                     </div>
                 </div>
 
-                {{-- TAMBAHAN BARU: Card Bukti Pembayaran dari Pembeli --}}
+                {{-- Card Bukti Pembayaran dari Pembeli --}}
                 <div class="card border-0 shadow-sm rounded-4">
                     <div class="card-body p-4">
                         <h5 class="fw-bold mb-3"><i class="bi bi-image me-2 text-secondary"></i>Bukti Pembayaran</h5>
 
-                        {{-- Catatan: Sesuaikan '$order->payment_proof' dengan nama kolom asli di database Anda --}}
                         @if (!empty($order->payment_proof))
                             <div class="p-3 bg-light rounded-4 border text-center">
                                 <div
@@ -121,16 +123,18 @@
                 {{-- Status & Update Card --}}
                 <div class="card border-0 shadow-sm rounded-4 mb-4 overflow-hidden">
                     <div
-                        class="p-3 text-center @if ($order->status == 'Sudah Dibayar') bg-warning @elseif($order->status == 'Diproses') bg-primary @elseif($order->status == 'Dikirim') bg-info @elseif($order->status == 'Selesai') bg-success @else bg-secondary @endif">
+                        class="p-3 text-center @if ($order->status == 'Sudah Dibayar') bg-warning @elseif($order->status == 'Diproses') bg-primary @elseif($order->status == 'Dikirim') bg-info @elseif($order->status == 'Selesai') bg-success @elseif($order->status == 'Dibatalkan') bg-danger @else bg-secondary @endif">
                         <span class="fw-bold text-white text-uppercase">Status Saat Ini: {{ $order->status }}</span>
                     </div>
 
                     <div class="card-body p-4">
-                        {{-- LOGIKA BARU: Jika Selesai, form dihilangkan --}}
-                        @if ($order->status == 'Selesai')
-                            <div class="alert alert-success border-0 shadow-sm rounded-3 text-center mb-0">
-                                <i class="bi bi-check-circle-fill d-block fs-3 mb-2"></i>
-                                <span class="fw-bold d-block">Pesanan Selesai</span>
+                        {{-- Mencegah Form Muncul Jika Status Selesai atau Dibatalkan --}}
+                        @if ($order->status == 'Selesai' || $order->status == 'Dibatalkan')
+                            <div
+                                class="alert {{ $order->status == 'Selesai' ? 'alert-success' : 'alert-danger' }} border-0 shadow-sm rounded-3 text-center mb-0">
+                                <i
+                                    class="bi {{ $order->status == 'Selesai' ? 'bi-check-circle-fill' : 'bi-x-circle-fill' }} d-block fs-3 mb-2"></i>
+                                <span class="fw-bold d-block">Pesanan {{ $order->status }}</span>
                                 <small>Status pesanan tidak dapat diubah lagi.</small>
                             </div>
                         @else
@@ -141,10 +145,15 @@
                                     <select name="status" id="statusSelect" class="form-select rounded-3 shadow-sm"
                                         required>
                                         <option value="Diproses" {{ $order->status == 'Diproses' ? 'selected' : '' }}>
-                                            Diproses
-                                            (Sedang disiapkan)</option>
-                                        <option value="Dikirim" {{ $order->status == 'Dikirim' ? 'selected' : '' }}>Dikirim
-                                            (Diserahkan ke kurir)</option>
+                                            Diproses (Sedang disiapkan)</option>
+                                        <option value="Dikirim" {{ $order->status == 'Dikirim' ? 'selected' : '' }}>
+                                            Dikirim (Diserahkan ke kurir)</option>
+
+                                        {{-- TAMBAHAN OPSI BATAL --}}
+                                        <option value="Dibatalkan" class="text-danger fw-bold"
+                                            {{ $order->status == 'Dibatalkan' ? 'selected' : '' }}>
+                                            Batalkan Pesanan (Kembalikan Stok)
+                                        </option>
                                     </select>
                                 </div>
 
@@ -155,8 +164,7 @@
                                         class="form-control rounded-3 shadow-sm" placeholder="Masukkan nomor resi..."
                                         value="{{ $order->resi_number }}">
                                     <small class="text-muted d-block mt-1">Gunakan nomor resi pengiriman yang valid agar
-                                        pembeli
-                                        dapat melacak paket.</small>
+                                        pembeli dapat melacak paket.</small>
                                 </div>
 
                                 <button type="submit" class="btn w-100 rounded-pill py-2 fw-bold text-white shadow-sm mt-2"
@@ -197,7 +205,7 @@
         </div>
     </div>
 
-    {{-- TAMBAHAN BARU: Bootstrap Modal untuk Zoom Gambar Bukti Pembayaran --}}
+    {{-- Bootstrap Modal untuk Zoom Gambar Bukti Pembayaran --}}
     @if (!empty($order->payment_proof))
         <div class="modal fade" id="paymentProofModal" tabindex="-1" aria-labelledby="paymentProofModalLabel"
             aria-hidden="true">
@@ -222,9 +230,10 @@
             const resiGroup = document.getElementById('resiInputGroup');
             const resiInput = document.getElementById('resi_input');
 
-            // Tambahkan pengecekan if (statusSelect) agar tidak error saat form disembunyikan
+            // Pengecekan if (statusSelect) agar tidak error saat form disembunyikan
             if (statusSelect) {
                 function toggleResiInput() {
+                    // Cek jika statusnya Dikirim maka munculkan resi, selain itu sembunyikan
                     if (statusSelect.value === 'Dikirim') {
                         resiGroup.classList.remove('d-none');
                         resiInput.setAttribute('required', 'required');

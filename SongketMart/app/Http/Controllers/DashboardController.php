@@ -53,7 +53,7 @@ class DashboardController extends Controller
                 })->sum('total_price');
 
             // 3. Hitung Pesanan yang Perlu Tindakan
-            $data['pending_action'] = \App\Models\Order::whereIn('status', ['Menunggu Verifikasi', 'Sudah Dibayar', 'Dikirim'])
+            $data['pending_action'] = \App\Models\Order::whereIn('status', ['Belum Dibayar','Menunggu Verifikasi', 'Sudah Dibayar', 'Dikirim'])
                 ->whereHas('items.product', function ($query) use ($user) {
                     $query->where('user_id', $user->id);
                 })->count();

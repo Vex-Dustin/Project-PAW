@@ -6,7 +6,7 @@ use App\Models\Order;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Gate; // <-- Tambahkan ini
+use Illuminate\Support\Facades\Gate;
 
 class SellerOrderController extends Controller
 {
@@ -19,7 +19,23 @@ class SellerOrderController extends Controller
 
     public function index()
     {
-        // Kueri index ini dibiarkan (TIDAK DIUBAH) karena berfungsi sebagai filter tabel
+        // -------------------------------------------------------------------
+        // LAZY CHECKING: Auto-Cancel Pesanan Transfer yang Lewat 2 Jam
+        // -------------------------------------------------------------------
+        $expiredOrders = Order::where('payment_method', 'transfer')
+            ->where('status', 'Belum Dibayar')
+            ->where('created_at', '<=', now()->subHour(1))
+            ->with('items.product')
+            ->get();
+
+        if ($expiredOrders->isNotEmpty()) {
+            foreach ($expiredOrders as $expOrder) {
+                // Batalkan dan kembalikan stok
+                $this->orderService->cancelOrder($expOrder);
+            }
+        }
+        // -------------------------------------------------------------------
+
         $orders = Order::whereHas('items.product', function ($query) {
             $query->where('user_id', Auth::id());
         })
@@ -33,8 +49,6 @@ class SellerOrderController extends Controller
     public function verifyPayment($id)
     {
         $order = Order::findOrFail($id);
-
-        // Cek izin akses sebagai penjual
         Gate::authorize('manageAsSeller', $order);
 
         try {
@@ -48,18 +62,31 @@ class SellerOrderController extends Controller
     public function updateStatus(Request $request, $id)
     {
         $order = Order::findOrFail($id);
-
-        // Cek izin akses sebagai penjual
         Gate::authorize('manageAsSeller', $order);
 
+        // Tambahkan 'Dibatalkan' ke dalam validasi
         $validatedData = $request->validate([
-            'status' => 'required|in:Diproses,Dikirim',
+            'status' => 'required|in:Diproses,Dikirim,Dibatalkan',
             'resi_number' => 'required_if:status,Dikirim|nullable|string|max:50'
         ]);
 
         try {
+            $oldStatus = $order->status;
+            $newStatus = $request->status;
+
+            if ($oldStatus === $newStatus) {
+                return redirect()->back()->with('info', 'Status tidak ada perubahan.');
+            }
+
+            // Jika Penjual Memilih Batalkan
+            if ($newStatus === 'Dibatalkan') {
+                $this->orderService->cancelOrder($order);
+                return redirect()->back()->with('success', 'Pesanan berhasil dibatalkan dan stok produk telah dikembalikan.');
+            }
+
+            // Jika Diproses / Dikirim
             $this->orderService->updateShippingStatus($order, $validatedData);
-            return redirect()->back()->with('success', 'Pesanan berhasil diupdate menjadi: ' . $request->status);
+            return redirect()->back()->with('success', 'Pesanan berhasil diupdate menjadi: ' . $newStatus);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
@@ -67,11 +94,14 @@ class SellerOrderController extends Controller
 
     public function show($id)
     {
-        // Cari order dan muat relasinya untuk efisiensi
         $order = Order::with(['user', 'items.product'])->findOrFail($id);
-
-        // Cek izin akses sebagai penjual
         Gate::authorize('manageAsSeller', $order);
+
+        // Kunci detail pesanan untuk metode Transfer yang Belum Dibayar
+        if ($order->payment_method === 'transfer' && $order->status === 'Belum Dibayar') {
+            return redirect()->route('seller.orders.index')
+                ->with('error', 'Detail pesanan metode transfer tidak dapat dilihat sebelum pembeli mengunggah bukti pembayaran.');
+        }
 
         return view('seller.orders.show', compact('order'));
     }
