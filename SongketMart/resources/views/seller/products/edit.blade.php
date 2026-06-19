@@ -14,6 +14,16 @@
             </div>
         </div>
 
+        @if ($errors->any())
+            <div class="alert alert-danger rounded-3 mb-4">
+                <ul class="mb-0">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
         <form action="{{ route('seller.products.update', $product->id) }}" method="POST" enctype="multipart/form-data">
             @csrf
             @method('PUT')
@@ -32,9 +42,29 @@
                             @enderror
                         </div>
 
+                        <div class="mb-3">
+                            <label class="form-label fw-bold">Kategori <span class="text-danger">*</span></label>
+                            <select name="category_id"
+                                class="form-select form-select-lg rounded-3 @error('category_id') is-invalid @enderror"
+                                required>
+                                <option value="">-- Pilih Jenis Songket --</option>
+                                @foreach ($categories ?? [] as $category)
+                                    <option value="{{ $category->id }}"
+                                        {{ old('category_id', $product->category_id) == $category->id ? 'selected' : '' }}>{{ $category->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('category_id')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
                         <div class="mb-0">
                             <label class="form-label fw-bold">Deskripsi Produk <span class="text-danger">*</span></label>
-                            <textarea name="description" class="form-control rounded-3" rows="5" required>{{ old('description', $product->description) }}</textarea>
+                            <textarea name="description" class="form-control rounded-3 @error('description') is-invalid @enderror" rows="5" required>{{ old('description', $product->description) }}</textarea>
+                            @error('description')
+                                <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
                         </div>
                     </div>
                 </div>

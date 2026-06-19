@@ -76,15 +76,11 @@
                                             @csrf
                                             @method('PUT')
                                             <div class="input-group input-group-sm shadow-sm rounded-3 overflow-hidden"
-                                                style="width: 110px;">
+                                                style="width: 80px;">
                                                 <input type="number" name="quantity" value="{{ $item->quantity }}"
                                                     min="1" max="{{ $item->product->stock }}"
-                                                    class="form-control text-center border-secondary-subtle px-1">
-                                                <button type="submit"
-                                                    class="btn btn-outline-secondary border-secondary-subtle px-2"
-                                                    title="Update Jumlah">
-                                                    <i class="bi bi-check2"></i>
-                                                </button>
+                                                    class="form-control text-center border-secondary-subtle px-1"
+                                                    onchange="this.form.submit()">
                                             </div>
                                         </form>
                                     </div>

@@ -7,7 +7,7 @@ use App\Models\Product;
 use App\Services\ProductService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Gate;
 
 class ProductController extends Controller
 {
@@ -76,11 +76,13 @@ class ProductController extends Controller
         // Cek izin akses via Policy
         Gate::authorize('update', $product);
 
-        $request->validate([
-            'name'  => 'required',
-            'price' => 'required|numeric',
-            'stock' => 'required|numeric',
-            'image' => 'nullable|image|mimes:jpg,png,jpeg|max:2048'
+        $validatedData = $request->validate([
+            'name'        => 'required|string|max:255',
+            'category_id' => 'required|exists:categories,id',
+            'description' => 'required|string',
+            'price'       => 'required|numeric',
+            'stock'       => 'required|integer',
+            'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
         $data = $request->except(['_token', '_method']);
