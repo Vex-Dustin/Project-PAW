@@ -10,8 +10,11 @@ class HomeController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Ambil produk yang sudah disetujui
-        $query = Product::where('status', 'Certified Authentic');
+        // 1. Ambil produk yang sudah disetujui DAN penjualnya berstatus 'active'
+        $query = Product::where('status', 'Certified Authentic')
+            ->whereHas('user', function ($uQuery) {
+                $uQuery->where('status', 'active');
+            });
 
         // 2. Logika Fitur Search (Poin 10)
         if ($request->filled('search')) {
@@ -35,9 +38,12 @@ class HomeController extends Controller
 
     public function show($id)
     {
-        // Cari produk berdasarkan ID dan pastikan statusnya Certified Authentic
+        // Cari produk berdasarkan ID dan pastikan statusnya Certified Authentic DAN penjualnya berstatus 'active'
         $product = Product::with(['category', 'user'])
             ->where('status', 'Certified Authentic')
+            ->whereHas('user', function ($uQuery) {
+                $uQuery->where('status', 'active');
+            })
             ->findOrFail($id);
 
         return view('product.show', compact('product'));

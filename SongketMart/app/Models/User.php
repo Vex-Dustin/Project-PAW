@@ -21,6 +21,7 @@ class User extends Authenticatable
         'role',
         'shop_name',
         'is_verified',
+        'status',
     ];
 
     protected $hidden = [

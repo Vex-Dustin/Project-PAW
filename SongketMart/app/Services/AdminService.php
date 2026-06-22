@@ -67,17 +67,18 @@ class AdminService
     }
 
     /**
-     * Logika untuk menghapus akun pengguna
+     * Logika untuk mengubah status keaktifan akun pengguna (Non-aktif / Aktif kembali)
      */
-    public function deleteUser(User $user)
+    public function toggleUserStatus(User $user)
     {
-        // Proteksi Sistem: Admin tidak boleh menghapus akunnya sendiri alias bunuh diri sistem
+        // Proteksi Sistem: Admin tidak boleh menonaktifkan akunnya sendiri (bunuh diri sistem)
         if ($user->id === Auth::id()) {
-            throw new Exception("Gagal. Anda tidak dapat menghapus akun Anda sendiri yang sedang aktif.");
+            throw new Exception("Gagal. Anda tidak dapat menonaktifkan akun Anda sendiri yang sedang aktif.");
         }
 
-        $user->delete();
+        $newStatus = $user->status === 'active' ? 'inactive' : 'active';
+        $user->update(['status' => $newStatus]);
 
-        return true;
+        return $newStatus;
     }
 }

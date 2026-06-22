@@ -90,8 +90,11 @@ class AdminController extends Controller
         $user = User::findOrFail($id);
 
         try {
-            $this->adminService->deleteUser($user);
-            return redirect()->back()->with('success', 'Pengguna berhasil dihapus dari sistem.');
+            $newStatus = $this->adminService->toggleUserStatus($user);
+            $message = $newStatus === 'inactive' 
+                ? 'Pengguna berhasil dinonaktifkan (Status: Inactive).' 
+                : 'Pengguna berhasil diaktifkan kembali (Status: Active).';
+            return redirect()->back()->with('success', $message);
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }

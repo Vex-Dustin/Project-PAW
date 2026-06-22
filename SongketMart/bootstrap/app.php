@@ -20,6 +20,11 @@ return Application::configure(basePath: dirname(__DIR__))
         // Daftarkan alias middleware role kita di sini
         $middleware->alias([
             'role' => \App\Http\Middleware\CheckRole::class,
+            'active_user' => \App\Http\Middleware\CheckUserStatus::class,
+        ]);
+
+        $middleware->appendToGroup('web', [
+            \App\Http\Middleware\CheckUserStatus::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

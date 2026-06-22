@@ -48,42 +48,47 @@
                                             <small class="text-muted">{{ $u->email }}</small>
                                         </td>
                                         <td>
-                                            <span
-                                                class="badge {{ $u->role == 'penjual' ? 'bg-info' : 'bg-secondary' }} bg-opacity-10 {{ $u->role == 'penjual' ? 'text-info' : 'text-secondary' }} rounded-pill px-3 py-2 small">
-                                                {{ ucfirst($u->role) }}
-                                            </span>
-                                        </td>
-                                        <td>
-                                            <div class="d-flex justify-content-center gap-2">
-                                                {{-- Form Ganti Role --}}
-                                                <form action="{{ route('admin.users.update-role', $u->id) }}" method="POST"
-                                                    class="d-flex gap-1">
-                                                    @csrf
-                                                    @method('PATCH')
-                                                    <select name="role" class="form-select form-select-sm rounded-3"
-                                                        style="width: 110px;">
-                                                        <option value="pembeli"
-                                                            {{ $u->role == 'pembeli' ? 'selected' : '' }}>Pembeli</option>
-                                                        <option value="penjual"
-                                                            {{ $u->role == 'penjual' ? 'selected' : '' }}>Penjual</option>
-                                                    </select>
-                                                    <button type="submit" class="btn btn-sm btn-dark rounded-3"
-                                                        title="Simpan Role">
-                                                        <i class="bi bi-check2"></i>
-                                                    </button>
-                                                </form>
+                                             <span
+                                                 class="badge {{ $u->role == 'penjual' ? 'bg-info' : 'bg-secondary' }} bg-opacity-10 {{ $u->role == 'penjual' ? 'text-info' : 'text-secondary' }} rounded-pill px-3 py-2 small">
+                                                 {{ ucfirst($u->role) }}
+                                             </span>
+                                             <span
+                                                 class="badge {{ $u->status == 'active' ? 'bg-success' : 'bg-danger' }} bg-opacity-10 {{ $u->status == 'active' ? 'text-success' : 'text-danger' }} rounded-pill px-3 py-2 small ms-1">
+                                                 {{ ucfirst($u->status) }}
+                                             </span>
+                                         </td>
+                                         <td>
+                                             <div class="d-flex justify-content-center gap-2">
+                                                 {{-- Form Ganti Role --}}
+                                                 <form action="{{ route('admin.users.update-role', $u->id) }}" method="POST"
+                                                     class="d-flex gap-1">
+                                                     @csrf
+                                                     @method('PATCH')
+                                                     <select name="role" class="form-select form-select-sm rounded-3"
+                                                         style="width: 110px;">
+                                                         <option value="pembeli"
+                                                             {{ $u->role == 'pembeli' ? 'selected' : '' }}>Pembeli</option>
+                                                         <option value="penjual"
+                                                             {{ $u->role == 'penjual' ? 'selected' : '' }}>Penjual</option>
+                                                     </select>
+                                                     <button type="submit" class="btn btn-sm btn-dark rounded-3"
+                                                         title="Simpan Role">
+                                                         <i class="bi bi-check2"></i>
+                                                     </button>
+                                                 </form>
 
-                                                {{-- Tombol Hapus --}}
-                                                <form action="{{ route('admin.users.destroy', $u->id) }}" method="POST"
-                                                    onsubmit="return confirm('Hapus user ini?')">
-                                                    @csrf
-                                                    @method('DELETE')
-                                                    <button type="submit" class="btn btn-sm btn-outline-danger rounded-3">
-                                                        <i class="bi bi-trash"></i>
-                                                    </button>
-                                                </form>
-                                            </div>
-                                        </td>
+                                                 {{-- Tombol Toggle Status (Aktif/Non-aktif) --}}
+                                                 <form action="{{ route('admin.users.destroy', $u->id) }}" method="POST"
+                                                     onsubmit="return confirm('Apakah Anda yakin ingin mengubah status keaktifan user ini?')">
+                                                     @csrf
+                                                     @method('DELETE')
+                                                     <button type="submit" class="btn btn-sm {{ $u->status == 'active' ? 'btn-outline-danger' : 'btn-outline-success' }} rounded-3"
+                                                         title="{{ $u->status == 'active' ? 'Nonaktifkan User' : 'Aktifkan User' }}">
+                                                         <i class="bi {{ $u->status == 'active' ? 'bi-person-x' : 'bi-person-check' }}"></i>
+                                                     </button>
+                                                 </form>
+                                             </div>
+                                         </td>
                                     </tr>
                                 @endforeach
                             </tbody>
