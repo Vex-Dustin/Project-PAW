@@ -247,4 +247,13 @@
             padding-bottom: 0 !important;
         }
     }
+
+    .hover-maroon {
+        transition: color 0.2s ease-in-out;
+    }
+    
+    .hover-maroon:hover {
+        color: var(--primary-maroon) !important;
+        text-decoration: underline !important;
+    }
 </style>

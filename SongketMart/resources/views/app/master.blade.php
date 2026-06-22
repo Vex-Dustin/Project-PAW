@@ -16,14 +16,14 @@
     @include('app.partials.styles')
 </head>
 
-<body>
+<body class="d-flex flex-column min-vh-100">
 
     {{-- Navbar Desktop --}}
     <nav class="navbar navbar-expand-md navbar-desktop d-none d-md-block">
         @include('app.navbar')
     </nav>
 
-    <main class="container py-4">
+    <main class="container py-4 flex-grow-1">
         {{-- Area Notifikasi Global --}}
         @include('app.partials.alerts')
 
@@ -33,6 +33,24 @@
             </div>
         </div>
     </main>
+
+    {{-- Footer --}}
+    <footer class="footer py-3 border-top bg-white mt-auto">
+        <div class="container">
+            <div class="row align-items-center justify-content-between text-center text-md-start">
+                <div class="col-12 col-md-6 mb-2 mb-md-0">
+                    <span class="text-muted small">
+                        &copy; {{ date('Y') }} <strong style="color: var(--primary-maroon);">SongketMart</strong>. Hak Cipta Dilindungi.
+                    </span>
+                </div>
+                <div class="col-12 col-md-6 text-center text-md-end">
+                    <span class="text-muted small">
+                        Pelestarian Warisan Nusantara &middot; Kelompok Project PAW
+                    </span>
+                </div>
+            </div>
+        </div>
+    </footer>
 
     {{-- Navbar Mobile --}}
     @include('app.bottom_nav')
