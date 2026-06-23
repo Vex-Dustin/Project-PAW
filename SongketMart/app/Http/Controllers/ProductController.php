@@ -41,8 +41,8 @@ class ProductController extends Controller
             'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'description' => 'required',
-            'price'       => 'required|numeric',
-            'stock'       => 'required|integer',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
             'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 
@@ -80,8 +80,8 @@ class ProductController extends Controller
             'name'        => 'required|string|max:255',
             'category_id' => 'required|exists:categories,id',
             'description' => 'required|string',
-            'price'       => 'required|numeric',
-            'stock'       => 'required|integer',
+            'price'       => 'required|numeric|min:0',
+            'stock'       => 'required|integer|min:0',
             'image'       => 'nullable|image|mimes:jpeg,png,jpg|max:2048',
         ]);
 

@@ -76,7 +76,7 @@
                             <label class="form-label fw-bold">Harga (Rp) <span class="text-danger">*</span></label>
                             <input type="number" name="price"
                                 class="form-control form-control-lg rounded-3 @error('price') is-invalid @enderror"
-                                value="{{ old('price') }}" placeholder="Contoh: 1500000" required>
+                                value="{{ old('price') }}" placeholder="Contoh: 1500000" min="0" required>
                             @error('price')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
@@ -86,7 +86,7 @@
                             <label class="form-label fw-bold">Stok (Pcs) <span class="text-danger">*</span></label>
                             <input type="number" name="stock"
                                 class="form-control form-control-lg rounded-3 @error('stock') is-invalid @enderror"
-                                value="{{ old('stock') }}" placeholder="Jumlah tersedia" required>
+                                value="{{ old('stock') }}" placeholder="Jumlah tersedia" min="0" required>
                             @error('stock')
                                 <div class="invalid-feedback">{{ $message }}</div>
                             @enderror
