@@ -82,10 +82,15 @@
 
                                                 @if ($order->status != 'Belum Dibayar')
                                                     <a href="{{ route('order.invoice', $order->id) }}"
-                                                        class="btn btn-sm btn-outline-dark shadow-sm">
+                                                        class="btn btn-sm btn-outline-dark shadow-sm" title="Cetak Invoice">
                                                         <i class="bi bi-printer"></i>
-                                                    </a>
+                                                     </a>
                                                 @endif
+
+                                                <a href="{{ route('order.show', $order->id) }}"
+                                                    class="btn btn-sm btn-outline-primary shadow-sm" title="Lihat Detail Pesanan">
+                                                    <i class="bi bi-eye"></i> Detail
+                                                </a>
                                             </div>
                                         </td>
                                     </tr>

@@ -46,4 +46,14 @@ class User extends Authenticatable
     {
         return $this->role === self::ROLE_PEMBELI;
     }
+
+    public function sellerReviews()
+    {
+        return $this->hasMany(Review::class, 'seller_id');
+    }
+
+    public function averageSellerRating()
+    {
+        return round($this->sellerReviews()->avg('rating') ?? 0, 1);
+    }
 }

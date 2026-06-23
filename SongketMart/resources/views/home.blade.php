@@ -113,7 +113,29 @@
                     </div>
                     <div class="card-body p-3">
                         <p class="text-muted small mb-1">{{ $product->category->name ?? 'Tanpa Kategori' }}</p>
-                        <h6 class="fw-bold mb-2 text-truncate">{{ $product->name }}</h6>
+                        <h6 class="fw-bold mb-1 text-truncate">{{ $product->name }}</h6>
+                        
+                        {{-- Info Rating Toko Ringkas --}}
+                        @php
+                            $seller = $product->user;
+                            $avgRating = $seller ? $seller->averageSellerRating() : 0;
+                            $reviewsCount = $seller ? $seller->sellerReviews()->count() : 0;
+                        @endphp
+                        <div class="d-flex align-items-center justify-content-between mb-2" style="font-size: 0.75rem;">
+                            <div class="d-flex align-items-center">
+                                <span class="text-warning me-1">
+                                    <i class="bi bi-star-fill"></i>
+                                </span>
+                                <span class="fw-bold text-dark me-1">{{ $avgRating }}</span>
+                                <span class="text-muted">({{ $reviewsCount }})</span>
+                            </div>
+                             @if($seller)
+                                 <a href="{{ route('store.profile', $seller->id) }}" class="text-decoration-none text-muted text-truncate fw-bold ms-2 hover-maroon" style="max-width: 120px;" title="Kunjungi Toko {{ $seller->shop_name ?: $seller->name }}">
+                                     <i class="bi bi-shop me-1" style="color: var(--primary-maroon);"></i>{{ $seller->shop_name ?: $seller->name }}
+                                 </a>
+                             @endif
+                        </div>
+
                         <div class="d-flex justify-content-between align-items-center">
                             <span class="fw-bold text-danger">Rp{{ number_format($product->price, 0, ',', '.') }}</span>
                         </div>

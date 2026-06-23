@@ -13,13 +13,18 @@
         </div>
 
         {{-- 1. Bagian Header Dashboard --}}
-        <div class="d-flex justify-content-between align-items-center mb-4">
+        <div class="d-flex flex-column flex-sm-row justify-content-between align-items-sm-center gap-2 mb-4">
             <h2 class="fw-bold mb-0 h4" style="color: var(--primary-maroon);">
                 <i class="bi bi-grid-1x2-fill me-2"></i>Ringkasan Toko
             </h2>
-            <span class="badge bg-light text-dark border px-3 py-2 rounded-pill small">
-                <i class="bi bi-calendar3 me-1"></i> {{ date('d M Y') }}
-            </span>
+            <div class="d-flex gap-2 align-items-center">
+                <a href="{{ route('store.profile', Auth::id()) }}" class="btn btn-sm text-white rounded-pill px-3 py-2 fw-bold shadow-sm" style="background-color: var(--primary-maroon);">
+                    <i class="bi bi-shop me-1"></i> Lihat Profil Toko
+                </a>
+                <span class="badge bg-light text-dark border px-3 py-2 rounded-pill small">
+                    <i class="bi bi-calendar3 me-1"></i> {{ date('d M Y') }}
+                </span>
+            </div>
         </div>
 
         {{-- ======================================================== --}}
@@ -59,6 +64,9 @@
                     </a>
                 </div>
             </div>
+            <a href="{{ route('store.profile', Auth::id()) }}" class="btn w-100 py-2.5 rounded-3 fw-bold text-center mt-3 d-md-none border hover-maroon-bg shadow-sm" style="border-color: var(--primary-maroon); color: var(--primary-maroon); background-color: #fff; font-size: 0.85rem;">
+                <i class="bi bi-shop me-2"></i> Kunjungi Profil Toko Saya
+            </a>
         </div>
         {{-- ======================================================== --}}
 
@@ -141,4 +149,11 @@
             </div>
         </div>
     </div>
+
+    <style>
+        .hover-maroon-bg:hover {
+            background-color: rgba(144, 26, 30, 0.05) !important;
+            color: var(--primary-maroon) !important;
+        }
+    </style>
 @endsection

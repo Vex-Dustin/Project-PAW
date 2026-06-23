@@ -18,6 +18,7 @@ use App\Http\Controllers\{
 // --- HALAMAN UMUM (Public) ---
 Route::get('/', [HomeController::class, 'index'])->name('home');
 Route::get('product/{id}', [HomeController::class, 'show'])->name('product.show');
+Route::get('store/{id}', [HomeController::class, 'storeProfile'])->name('store.profile');
 
 // --- OTENTIKASI (Hanya untuk tamu/belum login) ---
 Route::middleware('guest')->group(function () {
@@ -61,6 +62,10 @@ Route::middleware('auth')->group(function () {
         Route::post('/{id}/complete', 'complete')->name('complete');
         Route::get('/{id}/invoice', 'showInvoice')->name('invoice');
     });
+
+    // Ulasan Penjual (Review Toko)
+    Route::post('/orders/{orderId}/sellers/{sellerId}/review', [\App\Http\Controllers\ReviewController::class, 'store'])
+        ->name('reviews.store');
 
     // --- KHUSUS PENJUAL ---
     Route::middleware('role:penjual')->prefix('seller')->name('seller.')->group(function () {
