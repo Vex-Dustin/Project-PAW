@@ -68,6 +68,7 @@ class AdminService
 
     /**
      * Logika untuk mengubah status keaktifan akun pengguna (Non-aktif / Aktif kembali)
+     * Opsi B: Membatalkan transaksi aktif secara otomatis ketika dinonaktifkan
      */
     public function toggleUserStatus(User $user)
     {
@@ -78,6 +79,34 @@ class AdminService
 
         $newStatus = $user->status === 'active' ? 'inactive' : 'active';
         $user->update(['status' => $newStatus]);
+
+        // Jika dinonaktifkan, batalkan transaksi aktif (termasuk yang sedang dikirim)
+        if ($newStatus === 'inactive') {
+            $activeStatuses = ['Belum Dibayar', 'Menunggu Verifikasi', 'Sudah Dibayar', 'Dikirim'];
+
+            if ($user->role === 'pembeli') {
+                // Batalkan pesanan yang dibuat oleh pembeli ini yang belum selesai (termasuk yang sedang dikirim)
+                \App\Models\Order::where('user_id', $user->id)
+                    ->whereIn('status', $activeStatuses)
+                    ->update([
+                        'status' => 'Dibatalkan',
+                        'shipping_status' => 'Dibatalkan oleh Sistem (Akun Dinonaktifkan)'
+                    ]);
+            } elseif ($user->role === 'penjual') {
+                // Batalkan semua pesanan masuk untuk produk penjual ini yang belum selesai (termasuk yang sedang dikirim)
+                $ordersToCancel = \App\Models\Order::whereIn('status', $activeStatuses)
+                    ->whereHas('items.product', function ($query) use ($user) {
+                        $query->where('user_id', $user->id);
+                    })->get();
+
+                foreach ($ordersToCancel as $order) {
+                    $order->update([
+                        'status' => 'Dibatalkan',
+                        'shipping_status' => 'Dibatalkan oleh Sistem (Toko Dinonaktifkan)'
+                    ]);
+                }
+            }
+        }
 
         return $newStatus;
     }
